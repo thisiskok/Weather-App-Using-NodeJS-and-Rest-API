@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Weather App</title>
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.14.0/css/all.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Global Weather App</h1>
+      <form id="weather-form">
+        <input type="text" id="city-input" placeholder="Enter city name" />
+        <button type="submit">Get Weather</button>
+      </form>
+      <p id="error" class="error"></p>
+      <div id="weather-info" class="card"></div>
+    </div>
+
+    <script>
+      document
+        .getElementById("weather-form")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const city = document.getElementById("city-input").value;
+          const weatherInfoDiv = document.getElementById("weather-info");
+          const errorParagraph = document.getElementById("error");
+
+          // Clear previous results
+          weatherInfoDiv.innerHTML = "";
+          errorParagraph.textContent = "";
+
+          try {
+            const response = await fetch(`/weather?city=${city}`);
+            const data = await response.json();
+
+            if (data.error) {
+              errorParagraph.textContent = data.error;
+              weatherInfoDiv.style.display = "none"; // Hide weather info if there is an error
+            } else if (data.weather) {
+              weatherInfoDiv.style.display = "block"; // Show weather info if data is available
+              weatherInfoDiv.innerHTML = `
+            <p>
+              <i class="fas fa-thermometer-half"></i>
+              ${data.weather.main.temp} &deg;C
+            </p>
+            <p>
+              <i class="fas fa-cloud"></i>
+              ${data.weather.weather[0].description}
+            </p>
+            <p>
+              <i class="fas fa-map-marker-alt"></i>
+              ${data.weather.name}, ${data.weather.sys.country}
+            </p>
+          `;
+            }
+          } catch (error) {
+            errorParagraph.textContent = "Error fetching weather data.";
+            weatherInfoDiv.style.display = "none"; // Hide weather info if there is an error
+          }
+        });
+    </script>
+  </body>
+</html>
